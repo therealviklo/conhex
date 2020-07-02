@@ -1,5 +1,5 @@
 #pragma once
-#include "textdisp.cpp"
+#include "textdisp.h"
 
 class TextImage
 {

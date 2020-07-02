@@ -13,12 +13,12 @@ namespace TextMessageBoxUtils
 template <typename CharType>
 void TextMessageBox<CharType>::updateText(StringType text)
 {
-	this->text = text;
+	this->text = std::move(text);
 	
 	int textWidth = 0;
 	int rowCount = 1;
 	int currRowWidth = 0;
-	for (auto i = text.begin(); i != text.end(); i++)
+	for (auto i = this->text.begin(); i != this->text.end(); i++)
 	{
 		if (*i == '\n')
 		{
@@ -46,22 +46,22 @@ void TextMessageBox<CharType>::updateText(StringType text)
 	}
 	if (options.size() > 0) buttonRowWidth -= 2;
 	
-	width = TextMessageBoxUtils::max3(textWidth + 6, buttonRowWidth + 6, title.size() + 2);
+	width = TextMessageBoxUtils::max3(textWidth + 6, buttonRowWidth + 6, this->title.size() + 2);
 	height = rowCount + 6;
 }
 
 template <typename CharType>
 TextMessageBox<CharType>::TextMessageBox(StringType title, StringType text, std::vector<StringType> options, int defaultOption)
 {
-	this->title = title;
-	this->text = text;
-	this->options = options;
+	this->title = std::move(title);
+	this->text = std::move(text);
+	this->options = std::move(options);
 	selectedOption = defaultOption;
 
 	int textWidth = 0;
 	int rowCount = 1;
 	int currRowWidth = 0;
-	for (auto i = text.begin(); i != text.end(); i++)
+	for (auto i = this->text.begin(); i != this->text.end(); i++)
 	{
 		if (*i == '\n')
 		{
@@ -82,12 +82,12 @@ TextMessageBox<CharType>::TextMessageBox(StringType title, StringType text, std:
 		textWidth = currRowWidth;
 	}
 	int buttonRowWidth = 0;
-	for (auto i = options.begin(); i != options.end(); i++)
+	for (auto i = this->options.begin(); i != this->options.end(); i++)
 	{
 		buttonRowWidth += i->size() + 2;
 	}
-	if (options.size() > 0) buttonRowWidth -= 2;
-	width = TextMessageBoxUtils::max3(textWidth + 6, buttonRowWidth + 6, title.size() + 2);
+	if (this->options.size() > 0) buttonRowWidth -= 2;
+	width = TextMessageBoxUtils::max3(textWidth + 6, buttonRowWidth + 6, this->title.size() + 2);
 	height = rowCount + 6;
 }
 
@@ -226,7 +226,7 @@ void TextMessageBox<CharType>::updateCursorPos(bool leftPressed, bool rightPress
 template <>
 TextInputBox<char>::TextInputBox(StringType title)
 	: TextMessageBox<char>(
-		title,
+		std::move(title),
 		"",
 		{"OK"}
 	)
@@ -236,7 +236,7 @@ TextInputBox<char>::TextInputBox(StringType title)
 template <>
 TextInputBox<wchar_t>::TextInputBox(StringType title)
 	: TextMessageBox<wchar_t>(
-		title,
+		std::move(title),
 		L"",
 		{L"OK"}
 	)
@@ -261,12 +261,13 @@ void TextInputBox<CharType>::removeCharacter()
 
 int promptTextMessageBoxA437(std::string title, std::string text, std::vector<std::string> options, Textdisp& textdisp, Timer& timer, int defaultOption)
 {
-	TextMessageBoxA textMessageBox(title, text, options);
+	Textinp textinp;
+	TextMessageBoxA textMessageBox(std::move(title), std::move(text), std::move(options));
 	TextImage coveredArea(
-		textdisp, 
-		textMessageBox.getX(textdisp), 
-		textMessageBox.getY(textdisp), 
-		textMessageBox.getWidth(), 
+		textdisp,
+		textMessageBox.getX(textdisp),
+		textMessageBox.getY(textdisp),
+		textMessageBox.getWidth(),
 		textMessageBox.getHeight()
 	);
 
@@ -274,14 +275,11 @@ int promptTextMessageBoxA437(std::string title, std::string text, std::vector<st
 	{
 		timer.start();
 
-		if (consoleIsActiveWindow())
-		{
-			textMessageBox.updateCursorPos(KB::KB.pressed('A') | KB::KB.pressed(VK_LEFT), KB::KB.pressed('D') | KB::KB.pressed(VK_RIGHT));
+		textMessageBox.updateCursorPos(textinp.pressed('A') | textinp.pressed(VK_LEFT), textinp.pressed('D') | textinp.pressed(VK_RIGHT));
 
-			if (KB::KB.pressed(VK_RETURN))
-			{
-				break;
-			}
+		if (textinp.pressed(VK_RETURN))
+		{
+			break;
 		}
 
 		textMessageBox.draw<ForegroundColour::black | BackgroundColour::white, 205, 186, 201, 187, 188, 200>(textdisp);
@@ -309,7 +307,8 @@ void addCharacterAndRemoveBoxA(int c, std::unique_ptr<TextImage>& coveredArea, T
 
 std::string promptTextInputBoxA437(std::string title, Textdisp& textdisp, Timer& timer)
 {
-	TextInputBoxA textInputBox(title);
+	Textinp textinp;
+	TextInputBoxA textInputBox(std::move(title));
 	std::unique_ptr<TextImage> coveredArea = std::make_unique<TextImage>(
 		textdisp, 
 		textInputBox.getX(textdisp), 
@@ -322,71 +321,68 @@ std::string promptTextInputBoxA437(std::string title, Textdisp& textdisp, Timer&
 	{
 		timer.start();
 
-		if (consoleIsActiveWindow())
+		if (textinp.typed(VK_BACK))
 		{
-			if (KB::KB.down(VK_BACK))
+			coveredArea->draw(textdisp, textInputBox.getX(textdisp), textInputBox.getY(textdisp));
+			textInputBox.removeCharacter();
+			coveredArea = std::make_unique<TextImage>(
+				textdisp, 
+				textInputBox.getX(textdisp), 
+				textInputBox.getY(textdisp), 
+				textInputBox.getWidth(), 
+				textInputBox.getHeight()
+			);
+		}
+		if (textinp.typed(VK_OEM_PLUS))
+		{
+			addCharacterAndRemoveBoxA('+', coveredArea, textdisp, textInputBox);
+		}
+		if (textinp.typed(VK_OEM_MINUS))
+		{
+			addCharacterAndRemoveBoxA('-', coveredArea, textdisp, textInputBox);
+		}
+		if (textinp.typed(VK_OEM_PERIOD))
+		{
+			addCharacterAndRemoveBoxA('.', coveredArea, textdisp, textInputBox);
+		}
+		if (textinp.typed(VK_OEM_COMMA))
+		{
+			addCharacterAndRemoveBoxA(',', coveredArea, textdisp, textInputBox);
+		}
+		if (textinp.typed(VK_SPACE))
+		{
+			addCharacterAndRemoveBoxA(' ', coveredArea, textdisp, textInputBox);
+		}
+		for (int c = '0'; c <= '9'; c++)
+		{
+			if (textinp.typed(c))
 			{
-				coveredArea->draw(textdisp, textInputBox.getX(textdisp), textInputBox.getY(textdisp));
-				textInputBox.removeCharacter();
-				coveredArea = std::make_unique<TextImage>(
-					textdisp, 
-					textInputBox.getX(textdisp), 
-					textInputBox.getY(textdisp), 
-					textInputBox.getWidth(), 
-					textInputBox.getHeight()
-				);
+				addCharacterAndRemoveBoxA(c, coveredArea, textdisp, textInputBox);
 			}
-			if (KB::KB.down(VK_OEM_PLUS))
+		}
+		if (textinp.down(VK_SHIFT) != textinp.capsToggled())
+		{
+			for (int c = 'A'; c <= 'Z'; c++)
 			{
-				addCharacterAndRemoveBoxA('+', coveredArea, textdisp, textInputBox);
-			}
-			if (KB::KB.down(VK_OEM_MINUS))
-			{
-				addCharacterAndRemoveBoxA('-', coveredArea, textdisp, textInputBox);
-			}
-			if (KB::KB.down(VK_OEM_PERIOD))
-			{
-				addCharacterAndRemoveBoxA('.', coveredArea, textdisp, textInputBox);
-			}
-			if (KB::KB.down(VK_OEM_COMMA))
-			{
-				addCharacterAndRemoveBoxA(',', coveredArea, textdisp, textInputBox);
-			}
-			if (KB::KB.down(VK_SPACE))
-			{
-				addCharacterAndRemoveBoxA(' ', coveredArea, textdisp, textInputBox);
-			}
-			for (int c = '0'; c <= '9'; c++)
-			{
-				if (KB::KB.down(c))
+				if (textinp.typed(c))
 				{
 					addCharacterAndRemoveBoxA(c, coveredArea, textdisp, textInputBox);
 				}
 			}
-			if (keyPressed(VK_SHIFT) != keyToggled(VK_CAPITAL))
+		}
+		else
+		{
+			for (int c = 'A'; c <= 'Z'; c++)
 			{
-				for (int c = 'A'; c <= 'Z'; c++)
+				if (textinp.typed(c))
 				{
-					if (KB::KB.down(c))
-					{
-						addCharacterAndRemoveBoxA(c, coveredArea, textdisp, textInputBox);
-					}
+					addCharacterAndRemoveBoxA(c - ('A' - 'a'), coveredArea, textdisp, textInputBox);
 				}
 			}
-			else
-			{
-				for (int c = 'A'; c <= 'Z'; c++)
-				{
-					if (KB::KB.down(c))
-					{
-						addCharacterAndRemoveBoxA(c - ('A' - 'a'), coveredArea, textdisp, textInputBox);
-					}
-				}
-			}
-			if (KB::KB.pressed(VK_RETURN))
-			{
-				break;
-			}
+		}
+		if (textinp.pressed(VK_RETURN))
+		{
+			break;
 		}
 
 		textInputBox.draw<ForegroundColour::black | BackgroundColour::white, 205, 186, 201, 187, 188, 200>(textdisp);

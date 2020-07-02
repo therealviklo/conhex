@@ -1,4 +1,5 @@
 #include <iostream>
+#include "textdisp.h"
 
 int main()
 {

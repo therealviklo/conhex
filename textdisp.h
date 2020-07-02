@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <sstream>
 
 #pragma comment(lib, "User32.lib")
 
@@ -51,10 +52,36 @@ namespace BackgroundColour
 
 WORD invertColour(WORD colour);
 
-bool keyPressed(int key);
-bool keyToggled(int key);
+class Textinp
+{
+private:
+	struct KeyStruct
+	{
+		bool down; //om tangenten bokstavligen är nedtryckt
+		bool pressed; //endast true en gång efter att den har tryckts ner
+		bool typed; //true flera gånger efter att den har tryckts ner
+	};
 
-bool consoleIsActiveWindow();
+	KeyStruct keys[0xff]; //den sistan koden är 0xfe så 0xff stycken structar bör vara tillräckligt
+	HANDLE handle;
+	DWORD oldConsoleMode;
+
+	void update();
+public:
+	Textinp();
+	~Textinp();
+
+	Textinp(const Textinp&) = delete;
+	Textinp& operator=(const Textinp&) = delete;
+
+	bool down(WORD key);
+	bool pressed(WORD key);
+	bool typed(WORD key);
+
+	bool capsToggled() {return 1 & GetKeyState(VK_CAPITAL);}
+	bool numLockToggled() {return 1 & GetKeyState(VK_NUMLOCK);}
+	bool scrollLockToggled() {return 1 & GetKeyState(VK_SCROLL);}
+};
 
 class Textdisp
 {
@@ -65,6 +92,7 @@ private:
 	HANDLE screenBuffer;
 	HANDLE stdScreenBuffer;
 public:
+	Textdisp();
 	Textdisp(int width, int height);
 	~Textdisp();
 
@@ -80,23 +108,4 @@ public:
 	WORD getAttributes(int x, int y);
 
 	void draw();
-};
-
-class SinglePressKey
-{
-private:
-	bool toggled;
-	int c;
-	int interval;
-	int minInterval;
-	double effectiveInterval;
-	double decrease;
-	int pressedTime;
-public:
-	SinglePressKey(int c, int interval = 1, int minInterval = 1, double decrease = 1);
-
-	//är endast true en gång efter att tangenten har tryckts ner
-	bool pressed();
-	//är true var "intervalade" gång den körs
-	bool down();
 };

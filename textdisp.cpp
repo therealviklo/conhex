@@ -13,9 +13,9 @@ void Textinp::update()
 		throw std::runtime_error("Failed to get number of console input events");
 	if (numberOfEvents > 0)
 	{
-		INPUT_RECORD events[numberOfEvents];
+		std::unique_ptr<INPUT_RECORD[]> events = std::make_unique<INPUT_RECORD[]>(numberOfEvents);
 		DWORD numberOfEventsRead;
-		if (!ReadConsoleInputW(handle, events, numberOfEvents, &numberOfEventsRead))
+		if (!ReadConsoleInputW(handle, events.get(), numberOfEvents, &numberOfEventsRead))
 			throw std::runtime_error("Failed to read console input events");
 		for (int i = 0; i < numberOfEventsRead; i++)
 		{
@@ -52,7 +52,7 @@ void Textinp::update()
 }
 
 Textinp::Textinp()
-	: keys({})
+	: keys{}
 {
 	handle = GetStdHandle(STD_INPUT_HANDLE);
 	if (handle == INVALID_HANDLE_VALUE)

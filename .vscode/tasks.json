@@ -4,13 +4,15 @@
 		{
 			"type": "shell",
 			"label": "C/C++: cl.exe build active file",
-			"command": "cl.exe",
+			"command": "vmake.exe",
 			"args": [
+				"cl.exe",
+				"/std:c++17",
 				"/Zi",
 				"/EHsc",
 				"/Fe:",
 				"${fileDirname}\\${fileBasenameNoExtension}.exe",
-				"${file}"
+				"NAMN"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <sstream>
+#include <memory>
 
 #pragma comment(lib, "User32.lib")
 

@@ -10,14 +10,14 @@
 struct MenuResult
 {
 	bool successful;
-	std::string menu;
-	std::string option;
+	std::wstring menu;
+	std::wstring option;
 };
 
 class Menu
 {
 public:
-	typedef std::vector<std::pair<std::string, std::vector<std::string>>> options_t;
+	typedef std::vector<std::pair<std::wstring, std::vector<std::wstring>>> options_t;
 private:
 	options_t options;
 	int menuSelectedOption;

@@ -66,6 +66,13 @@ public:
 	*/
 	long getPos();
 
+	/*
+	 * Rensar allt från filen.
+	 * Kastar ett std::runtime_error om inen fil är öppen eller
+	 * om det inte går att göra det.
+	*/
+	void clear();
+
 	// Returnerar FILE*:en
 	FILE* getFilePtr() {return currFile;}
 

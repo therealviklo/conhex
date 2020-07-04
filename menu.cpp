@@ -58,7 +58,7 @@ void Menu::draw(int x, int y, Textdisp& textdisp)
 				}
 				while (xOffset < longestLength)
 				{
-					textdisp.set(x + offset + xOffset, y + yOffset, ' ', j == listSelectedOption ? BackgroundColour::white | ForegroundColour::black : BackgroundColour::black | ForegroundColour::white);
+					textdisp.set(x + offset + xOffset, y + yOffset, L' ', j == listSelectedOption ? BackgroundColour::white | ForegroundColour::black : BackgroundColour::black | ForegroundColour::white);
 					xOffset++;
 				}
 				yOffset++;
@@ -98,7 +98,7 @@ MenuResult Menu::enterMenu(int x, int y, Textdisp& textdisp, Timer& timer)
 			if (textinp.pressed(VK_MENU) || textinp.pressed('M'))
 			{
 				isInMenu = false;
-				return {false, "", ""};
+				return {false, L"", L""};
 			}
 			if (textinp.pressed(VK_RETURN))
 			{
@@ -132,7 +132,7 @@ MenuResult Menu::enterMenu(int x, int y, Textdisp& textdisp, Timer& timer)
 		isInMenu = false;
 		throw;
 	}
-	return {false, "", ""}; //borde ej köras
+	return {false, L"", L""}; //borde ej köras
 }
 
 bool Menu::moveCursor(bool wPressed, bool aPressed, bool sPressed, bool dPressed)

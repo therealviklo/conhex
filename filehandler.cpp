@@ -42,7 +42,7 @@ uint8_t Filehandler::readByte()
 	}
 	else
 	{
-		throw std::runtime_error("No file to read from");
+		throw std::runtime_error("No file is open");
 	}
 }
 
@@ -57,7 +57,7 @@ uint8_t Filehandler::readByte(long pos)
 	}
 	else
 	{
-		throw std::runtime_error("No file to read from");
+		throw std::runtime_error("No file is open");
 	}
 }
 
@@ -69,7 +69,7 @@ void Filehandler::writeByte(uint8_t byte)
 	}
 	else
 	{
-		throw std::runtime_error("No file to read from");
+		throw std::runtime_error("No file is open");
 	}
 }
 
@@ -82,7 +82,7 @@ void Filehandler::writeByte(uint8_t byte, long pos)
 	}
 	else
 	{
-		throw std::runtime_error("No file to read from");
+		throw std::runtime_error("No file is open");
 	}
 }
 
@@ -104,6 +104,19 @@ long Filehandler::getPos()
 	}
 	else
 	{
-		throw std::runtime_error("No file to read from");
+		throw std::runtime_error("No file is open");
+	}
+}
+
+void Filehandler::clear()
+{
+	if (currFile)
+	{
+		currFile = freopen(nullptr, "w+b", currFile);
+		if (currFile == nullptr) throw std::runtime_error("Unable to clear file");
+	}
+	else
+	{
+		throw std::runtime_error("No file is open");
 	}
 }

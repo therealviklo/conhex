@@ -11,7 +11,7 @@
 				"/Zi",
 				"/EHsc",
 				"/Fe:",
-				"${fileDirname}\\${fileBasenameNoExtension}.exe",
+				"C:\\Users\\Viggo\\c++\\conhex\\conhex.exe",
 				"NAMN"
 			],
 			"options": {

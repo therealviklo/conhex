@@ -1,6 +1,9 @@
 #pragma once
 #include "draw.h"
 
+#define WoB (BackgroundColour::black | ForegroundColour::white)
+#define BoW (BackgroundColour::white | ForegroundColour::black)
+
 wchar_t boolToBin(bool b)
 {
 	if (b) return L'1';
@@ -16,29 +19,31 @@ wchar_t nibbleToHex(uint8_t nibble)
 void drawData()
 {
 	FileData::Reference currByte = startOfView; // Vscode tycker att det här är fel men det är det inte
+	int x = 0;
+	int y = 0;
+	int w = editAreaWidth();
+	int h = editAreaHeight();
 	switch (dispMode)
 	{
 		case M_BIN:
 		{
-			int x = 0;
-			int y = 0;
-			int w = (editArea.right - editArea.left) / 10 * 10; // Det här avrundar neråt
-			int h = editArea.bottom - editArea.top;
 			while (currByte && y < h)
 			{
 				for (int i = 7; i >= 4; i--)
 				{
-					td->set(x + editArea.left, y + editArea.top, boolToBin((*currByte) & (1 << i)), BackgroundColour::black | ForegroundColour::white);
+					WORD colour = cursor.getByte() == currByte && cursor.getBit() == 7 - i ? BoW : WoB;
+					td->set(x + editArea.left, y + editArea.top, boolToBin((*currByte) & (1 << i)), colour);
 					x++;
 				}
-				td->set(x + editArea.left, y + editArea.top, L'-', BackgroundColour::black | ForegroundColour::white);
+				td->set(x + editArea.left, y + editArea.top, L'-', WoB);
 				x++;
 				for (int i = 3; i >= 0; i--)
 				{
-					td->set(x + editArea.left, y + editArea.top, boolToBin((*currByte) & (1 << i)), BackgroundColour::black | ForegroundColour::white);
+					WORD colour = cursor.getByte() == currByte && cursor.getBit() == 7 - i ? BoW : WoB;
+					td->set(x + editArea.left, y + editArea.top, boolToBin((*currByte) & (1 << i)), colour);
 					x++;
 				}
-				td->set(x + editArea.left, y + editArea.top, L' ', BackgroundColour::black | ForegroundColour::white);
+				td->set(x + editArea.left, y + editArea.top, L' ', WoB);
 				x++;
 				if (x >= w)
 				{
@@ -51,17 +56,15 @@ void drawData()
 		break;
 		case M_HEX:
 		{
-			int x = 0;
-			int y = 0;
-			int w = (editArea.right - editArea.left) / 3 * 3;
-			int h = editArea.bottom - editArea.top;
 			while (currByte && y < h)
 			{
-				td->set(x + editArea.left, y + editArea.top, nibbleToHex(((*currByte) >> 4) & 0xf), BackgroundColour::black | ForegroundColour::white);
+				WORD colour = cursor.getByte() == currByte && cursor.getBit() == 0 ? BoW : WoB;
+				td->set(x + editArea.left, y + editArea.top, nibbleToHex(((*currByte) >> 4) & 0xf), colour);
 				x++;
-				td->set(x + editArea.left, y + editArea.top, nibbleToHex((*currByte) & 0xf), BackgroundColour::black | ForegroundColour::white);
+				colour = cursor.getByte() == currByte && cursor.getBit() == 4 ? BoW : WoB;
+				td->set(x + editArea.left, y + editArea.top, nibbleToHex((*currByte) & 0xf), colour);
 				x++;
-				td->set(x + editArea.left, y + editArea.top, L' ', BackgroundColour::black | ForegroundColour::white);
+				td->set(x + editArea.left, y + editArea.top, L' ', WoB);
 				x++;
 				if (x >= w)
 				{
@@ -74,13 +77,10 @@ void drawData()
 		break;
 		case M_TEXT:
 		{
-			int x = 0;
-			int y = 0;
-			int w = editArea.right - editArea.left;
-			int h = editArea.bottom - editArea.top;
 			while (currByte && y < h)
 			{
-				td->set(x + editArea.left, y + editArea.top, *currByte > 0x1f && *currByte != 0x7f ? *currByte : L' ', BackgroundColour::black | ForegroundColour::white);
+				WORD colour = cursor.getByte() == currByte ? BoW : WoB;
+				td->set(x + editArea.left, y + editArea.top, *currByte > 0x1f && *currByte != 0x7f ? *currByte : L' ', colour);
 				x++;
 				if (x >= w)
 				{
@@ -90,8 +90,6 @@ void drawData()
 				currByte.next();
 			}
 		}
-		break;
-		default:
 		break;
 	}
 }

@@ -1,6 +1,87 @@
 ﻿#pragma once
 #include "processinput.h"
 
+bool cursorOnScreen()
+{
+	int w = bytesInRow();
+	int h = editAreaHeight();
+	auto byte = startOfView;
+	for (int i = 0; byte != nullptr && i < w * h; i++)
+	{
+		if (byte == cursor.getByte()) return true;
+		byte.next();
+	}
+	return false;
+}
+
+void moveScreenUp()
+{
+	startOfView.tryMove(-bytesInRow());
+}
+
+void moveScreenDown()
+{
+	startOfView.tryMove(bytesInRow());
+}
+
+void recalculateStartOfView()
+{
+	startOfView = filedata.start();
+	while (startOfView && !cursorOnScreen()) moveScreenDown();
+}
+
+void typeChar(char c)
+{
+	if (cursor.getByte())
+	{
+		switch (dispMode)
+		{
+			case M_BIN:
+			{
+				switch (c)
+				{
+					case '0':
+					{
+						unsigned int bit = 1 << (7 - cursor.getBit());
+						if (*cursor.getByte() & bit) *cursor.getByte() ^= bit;
+					}
+					break;
+					case '1':
+					{
+						unsigned int bit = 1 << (7 - cursor.getBit());
+						*cursor.getByte() |= bit;
+					}
+					break;
+				}
+			}
+			break;
+			case M_HEX:
+			{
+				for (char d = '0'; d <= '9'; d++)
+				{
+					if (d == c)
+					{
+						unsigned int bits = 0b1111 << (4 - cursor.getBit());
+						*cursor.getByte() ^= ~bits;
+						*cursor.getByte() += (c - '0') << (4 - cursor.getBit());
+					}
+				}
+				for (char d = 'A'; d <= 'Z'; d++)
+				{
+					if (d == c)
+					{
+						unsigned int bits = 0b1111 << (4 - cursor.getBit());
+						*cursor.getByte() ^= ~bits;
+						*cursor.getByte() += (c - 'A' + 10) << (4 - cursor.getBit());
+					}
+				}
+			}
+			break;
+		}
+		cursor.moveRight();
+	}
+}
+
 void processInput()
 {
 	if (ti->pressed(VK_MENU) || ti->pressed('M'))
@@ -33,7 +114,71 @@ void processInput()
 				{
 					dispMode = M_TEXT;
 				}
+				cursor.flattenBit();
+				recalculateStartOfView();
 			}
 		}
+	}
+
+	if (ti->typed(VK_UP))
+	{
+		cursor.moveUp();
+		if (!cursorOnScreen()) moveScreenUp();
+	}
+	if (ti->typed(VK_LEFT))
+	{
+		cursor.moveLeft();
+		if (!cursorOnScreen()) moveScreenUp();
+	}
+	if (ti->typed(VK_DOWN))
+	{
+		cursor.moveDown();
+		if (!cursorOnScreen()) moveScreenDown();
+	}
+	if (ti->typed(VK_RIGHT))
+	{
+		cursor.moveRight();
+		if (!cursorOnScreen()) moveScreenDown();
+	}
+
+	if (ti->pressed('B'))
+	{
+		dispMode = M_BIN;
+		cursor.flattenBit();
+		recalculateStartOfView();
+	}
+	if (ti->pressed('H'))
+	{
+		dispMode = M_HEX;
+		cursor.flattenBit();
+		recalculateStartOfView();
+	}
+	if (ti->pressed('T'))
+	{
+		dispMode = M_TEXT;
+		cursor.flattenBit();
+		recalculateStartOfView();
+	}
+
+	switch (dispMode)
+	{
+		case M_BIN:
+		{
+			if (ti->typed('0')) typeChar('0');
+			if (ti->typed('1')) typeChar('1');
+		}
+		break;
+		case M_HEX:
+		{
+			for (char c = '0'; c <= '9'; c++)
+			{
+				if (ti->typed(c)) typeChar(c);
+			}
+			for (char c = 'A'; c <= 'F'; c++)
+			{
+				if (ti->typed(c)) typeChar(c);
+			}
+		}
+		break;
 	}
 }

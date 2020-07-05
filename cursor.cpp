@@ -1,47 +1,166 @@
 #pragma once
 #include "cursor.h"
 
-Cursor::Cursor(int boxWidth, int boxHeight)
+Cursor::Cursor()
+	: byte(nullptr),
+	  bit(0) {}
+
+void Cursor::flattenBit()
 {
-	box = {0, 0, boxWidth-1, boxHeight-1};
-	x = 0;
-	y = 0;
+	switch (dispMode)
+	{
+		case M_BIN:
+		break;
+		case M_HEX:
+		{
+			if (bit > 3) bit = 4;
+			else bit = 0;
+		}
+		break;
+		case M_TEXT:
+		{
+			bit = 0;
+		}
+		break;
+	}
 }
 
-Cursor::Cursor(Box box)
+void Cursor::moveUp()
 {
-	this->box = box;
-	x = 0;
-	y = 0;
+	int w = moveUnitsInRow();
+	for (int i = 0; i < w; i++)
+		moveLeft();
 }
 
-MoveData Cursor::move(MoveData moveData)
+void Cursor::moveLeft()
 {
-	if (moveData.w) y--;
-	if (moveData.a) x--;
-	if (moveData.s) y++;
-	if (moveData.d) x++;
+	flattenBit();
+	switch (dispMode)
+	{
+		case M_BIN:
+		{
+			if (bit == 0)
+			{
+				if (byte.peekPrev() != nullptr)
+				{
+					byte.prev();
+					bit = 7;
+				}
+				else
+				{
+					return;
+				}
+			}
+			else
+			{
+				bit--;
+			}
+		}
+		break;
+		case M_HEX:
+		{
+			if (bit == 0)
+			{
+				if (byte.peekPrev() != nullptr)
+				{
+					byte.prev();
+					bit = 4;
+				}
+				else
+				{
+					return;
+				}
+			}
+			else
+			{
+				bit = 0;
+			}
+		}
+		break;
+		case M_TEXT:
+		{
+			if (byte.peekPrev() != nullptr)
+			{
+				byte.prev();
+			}
+			else
+			{
+				return;
+			}
+		}
+		break;
+	}
+}
 
-	if (x < box.left)
+void Cursor::moveDown()
+{
+	int w = moveUnitsInRow();
+	for (int i = 0; i < w; i++)
+		moveRight();
+}
+
+void Cursor::moveRight()
+{
+	flattenBit();
+	switch (dispMode)
 	{
-		x = box.left;
-		moveData.a = false;
+		case M_BIN:
+		{
+			if (bit == 7)
+			{
+				if (byte.peekNext() != nullptr)
+				{
+					byte.next();
+					bit = 0;
+				}
+				else
+				{
+					return;
+				}
+			}
+			else
+			{
+				bit++;
+			}
+		}
+		break;
+		case M_HEX:
+		{
+			if (bit == 4)
+			{
+				if (byte.peekNext() != nullptr)
+				{
+					byte.next();
+					bit = 0;
+				}
+				else
+				{
+					return;
+				}
+			}
+			else
+			{
+				bit = 4;
+			}
+		}
+		break;
+		case M_TEXT:
+		{
+			if (byte.peekNext() != nullptr)
+			{
+				byte.next();
+			}
+			else
+			{
+				return;
+			}
+		}
+		break;
 	}
-	if (x > box.right)
-	{
-		x = box.right;
-		moveData.d = false;
-	}
-	if (y < box.top)
-	{
-		y = box.top;
-		moveData.w = false;
-	}
-	if (y > box.bottom)
-	{
-		y = box.bottom;
-		moveData.s = false;
-	}
-	
-	return moveData;
+}
+
+void Cursor::setPos(FileData::Reference pos)
+{
+	byte = pos;
+	bit = 0;
 }

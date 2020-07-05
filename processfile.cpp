@@ -20,4 +20,5 @@ void loadFileData()
 		}
 	}
 	startOfView = filedata.start();
+	cursor.setPos(filedata.start());
 }

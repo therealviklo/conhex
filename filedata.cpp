@@ -41,6 +41,18 @@ void FileData::Reference::prev()
 	if (node) node = node->prev;
 }
 
+FileData::Reference FileData::Reference::peekNext()
+{
+	if (node) return node->next;
+	return nullptr;
+}
+
+FileData::Reference FileData::Reference::peekPrev()
+{
+	if (node) return node->prev;
+	return nullptr;
+}
+
 bool FileData::Reference::tryMove(int steps)
 {
 	Reference r = *this;

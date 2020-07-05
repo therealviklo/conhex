@@ -4,16 +4,9 @@
 #include "../timer.h"
 #include "../menu.h"
 #include "../textutils.h"
-
-enum DispMode
-{
-	M_BIN,
-	M_HEX,
-	M_TEXT
-};
+#include "../cursor.h"
 
 extern std::unique_ptr<Textdisp> td;
 extern std::unique_ptr<Timer> timer;
 extern Menu menu;
 extern Box editArea;
-extern DispMode dispMode;

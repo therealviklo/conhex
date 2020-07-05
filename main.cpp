@@ -10,6 +10,7 @@
 #include "vars/input.h"
 #include "vars/state.h"
 #include "vars/file.h"
+#include "vars/cursor.h"
 
 // gfx
 std::unique_ptr<Textdisp> td;
@@ -32,15 +33,17 @@ Menu menu(Menu::options_t{
 	}
 });
 Box editArea;
-DispMode dispMode = M_HEX;
 // input
 std::unique_ptr<Textinp> ti;
 // state
 bool running = true;
+DispMode dispMode = M_HEX;
 // file
 Filehandler filehandler;
 FileData filedata;
 FileData::Reference startOfView = nullptr;
+// cursor
+Cursor cursor;
 
 int main(int argc, char* argv[])
 {

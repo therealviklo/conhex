@@ -34,6 +34,8 @@ public:
 
 		void next();
 		void prev();
+		Reference peekNext();
+		Reference peekPrev();
 
 		/*
 		 * Om steps är negativ går den bakåt. Om det inte går att flytta händer inget.

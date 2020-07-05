@@ -1,25 +1,26 @@
 #pragma once
 #include "textutils.h"
-
-struct MoveData
-{
-	bool w;
-	bool a;
-	bool s;
-	bool d;
-};
+#include "filedata.h"
+#include "editarea.h"
+#include "vars/state.h"
 
 class Cursor
 {
 private:
-	Box box;
+	FileData::Reference byte;
+	int bit;
 public:
-	int x;
-	int y;
+	Cursor();
+	
+	void flattenBit();
 
-	Cursor(int boxWidth, int boxHeight);
-	Cursor(Box box);
+	void moveUp();
+	void moveLeft();
+	void moveDown();
+	void moveRight();
 
-	//returnerar de håll som den faktiskt har rört sig i
-	MoveData move(MoveData moveData);
+	FileData::Reference getByte() {return byte;}
+	int getBit() {return bit;}
+
+	void setPos(FileData::Reference pos);
 };

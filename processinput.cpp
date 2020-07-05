@@ -62,7 +62,7 @@ void typeChar(char c)
 					if (d == c)
 					{
 						unsigned int bits = 0b1111 << (4 - cursor.getBit());
-						*cursor.getByte() ^= ~bits;
+						*cursor.getByte() &= ~bits;
 						*cursor.getByte() += (c - '0') << (4 - cursor.getBit());
 					}
 				}
@@ -71,7 +71,7 @@ void typeChar(char c)
 					if (d == c)
 					{
 						unsigned int bits = 0b1111 << (4 - cursor.getBit());
-						*cursor.getByte() ^= ~bits;
+						*cursor.getByte() &= ~bits;
 						*cursor.getByte() += (c - 'A' + 10) << (4 - cursor.getBit());
 					}
 				}
@@ -141,19 +141,19 @@ void processInput()
 		if (!cursorOnScreen()) moveScreenDown();
 	}
 
-	if (ti->pressed('B'))
+	if (ti->pressed('T')) // T för "bas Två"
 	{
 		dispMode = M_BIN;
 		cursor.flattenBit();
 		recalculateStartOfView();
 	}
-	if (ti->pressed('H'))
+	if (ti->pressed('H')) // H för "Hexadecimalt"
 	{
 		dispMode = M_HEX;
 		cursor.flattenBit();
 		recalculateStartOfView();
 	}
-	if (ti->pressed('T'))
+	if (ti->pressed('K')) // K för "Karaktär"
 	{
 		dispMode = M_TEXT;
 		cursor.flattenBit();

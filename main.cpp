@@ -4,6 +4,8 @@
 #include "draw.h"
 #include "processinput.h"
 #include "utilsstr.h"
+#include "filedata.h"
+#include "processfile.h"
 #include "vars/gfx.h"
 #include "vars/input.h"
 #include "vars/state.h"
@@ -19,15 +21,26 @@ Menu menu(Menu::options_t{
 			L"Spara",
 			L"Avsluta"
 		}
+	},
+	{
+		L"Läge",
+		{
+			L"Binärt",
+			L"Hexadecimalt",
+			L"Tecken"
+		}
 	}
 });
 Box editArea;
+DispMode dispMode = M_HEX;
 // input
 std::unique_ptr<Textinp> ti;
 // state
 bool running = true;
 // file
 Filehandler filehandler;
+FileData filedata;
+FileData::Reference startOfView = nullptr;
 
 int main(int argc, char* argv[])
 {
@@ -39,6 +52,7 @@ int main(int argc, char* argv[])
 		if (argc == 2)
 		{
 			filehandler.open(argv[1]);
+			loadFileData();
 		}
 		else
 		{

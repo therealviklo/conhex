@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "processinput.h"
 
 void processInput()
@@ -12,11 +12,26 @@ void processInput()
 			{
 				if (menuResult.option == L"Spara")
 				{
-					
+
 				}
 				else if (menuResult.option == L"Avsluta")
 				{
 					running = false;
+				}
+			}
+			else if (menuResult.menu == L"Läge")
+			{
+				if (menuResult.option == L"Binärt")
+				{
+					dispMode = M_BIN;
+				}
+				else if (menuResult.option == L"Hexadecimalt")
+				{
+					dispMode = M_HEX;
+				}
+				else if (menuResult.option == L"Tecken")
+				{
+					dispMode = M_TEXT;
 				}
 			}
 		}

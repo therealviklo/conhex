@@ -30,6 +30,12 @@ Menu menu(Menu::options_t{
 			L"Hexadecimalt",
 			L"Tecken"
 		}
+	},
+	{
+		L"Gå till",
+		{
+			L"Offset"
+		}
 	}
 });
 Box editArea;

@@ -1,5 +1,6 @@
 #pragma once
 #include "editarea.h"
+#include "textmessagebox.h"
 #include "vars/input.h"
 #include "vars/state.h"
 #include "vars/gfx.h"

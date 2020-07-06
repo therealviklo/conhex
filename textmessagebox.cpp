@@ -385,7 +385,7 @@ std::string promptTextInputBoxA437(std::string title, Textdisp& textdisp, Timer&
 			break;
 		}
 
-		textInputBox.draw<ForegroundColour::black | BackgroundColour::white, 205, 186, 201, 187, 188, 200>(textdisp);
+		textInputBox.draw<ForegroundColour::black | BackgroundColour::white, '-', '|', '/', '\\', '/', '\\'>(textdisp);
 		textdisp.draw();
 		timer.wait();
 	}

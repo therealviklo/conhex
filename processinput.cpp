@@ -122,6 +122,23 @@ void processInput()
 				cursor.flattenBit();
 				recalculateStartOfView();
 			}
+			else if (menuResult.menu == L"Gå till")
+			{
+				if (menuResult.option == L"Offset")
+				{
+					try
+					{
+						FileData::Reference r = filedata.start();
+						unsigned long offset = std::stoul(promptTextInputBoxA437("Offset", *td, *timer), nullptr, 0);
+						for (unsigned long i = 0; i < offset; i++)
+						{
+							r.next();
+						}
+						if (r) cursor.setPos(r);
+					}
+					catch (std::out_of_range) {}
+				}
+			}
 		}
 	}
 

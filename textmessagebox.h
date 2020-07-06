@@ -51,6 +51,5 @@ public:
 typedef TextInputBox<char> TextInputBoxA;
 typedef TextInputBox<wchar_t> TextInputBoxW;
 
-//437 är code pagen
 int promptTextMessageBoxA437(std::string title, std::string text, std::vector<std::string> options, Textdisp& textdisp, Timer& timer, int defaultOption = 0);
 std::string promptTextInputBoxA437(std::string title, Textdisp& textdisp, Timer& timer);

@@ -68,6 +68,7 @@ public:
 
 	// Returnerar en referens till den nya noden. Om r är null läggs den nya noden i början.
 	Reference insertAfter(Reference r);
+	void deleteByte(Reference r);
 
 	Reference start() {return startNode;}
 };

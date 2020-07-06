@@ -109,3 +109,23 @@ FileData::Reference FileData::insertAfter(FileData::Reference r)
 	if (r) return new Node(r.node);
 	return new Node(&startNode);
 }
+
+void FileData::deleteByte(Reference r)
+{
+	if (r)
+	{
+		if (r.node->prev)
+		{
+			r.node->prev->next = r.node->next;
+		}
+		else
+		{
+			startNode = r.node->next;
+		}
+		if (r.node->next)
+		{
+			r.node->next->prev = r.node->prev;
+		}
+		delete r.node;
+	}
+}

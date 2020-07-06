@@ -203,4 +203,43 @@ void processInput()
 		}
 		break;
 	}
+
+	if (ti->typed('I') || ti->typed(VK_INSERT))
+	{
+		FileData::Reference prevByte = cursor.getByte();
+		cursor.setPos(filedata.insertAfter(prevByte));
+		if (cursor.getByte()) *cursor.getByte() = 0;
+		if (!cursorOnScreen())
+		{
+			if (prevByte == nullptr)
+			{
+				recalculateStartOfView();
+			}
+			else
+			{
+				moveScreenDown();
+			}
+		}
+	}
+	if (ti->typed('R') || ti->typed(VK_DELETE))
+	{
+		if (cursor.getByte())
+		{
+			FileData::Reference prevByte = cursor.getByte();
+			if (cursor.getByte().peekNext())
+			{
+				cursor.setPos(cursor.getByte().peekNext());
+			}
+			else if (cursor.getByte().peekPrev())
+			{
+				cursor.setPos(cursor.getByte().peekPrev());
+			}
+			else
+			{
+				cursor.setPos(nullptr);
+			}
+			if (startOfView == prevByte) startOfView = cursor.getByte();
+			filedata.deleteByte(prevByte);
+		}
+	}
 }

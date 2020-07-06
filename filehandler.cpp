@@ -24,12 +24,24 @@ void Filehandler::open(std::string filename)
 			// currFile är redan nullptr, så vi behöver inte ändra den
 			throw std::runtime_error("Failed to open file");
 		}
+		else
+		{
+			this->filename = filename;
+		}
+	}
+	else
+	{
+		this->filename = filename;
 	}
 }
 
 void Filehandler::close()
 {
-	if (currFile) fclose(currFile);
+	if (currFile)
+	{
+		fclose(currFile);
+		filename = "";
+	}
 }
 
 uint8_t Filehandler::readByte()
@@ -112,8 +124,13 @@ void Filehandler::clear()
 {
 	if (currFile)
 	{
-		currFile = freopen(nullptr, "w+b", currFile);
-		if (currFile == nullptr) throw std::runtime_error("Unable to clear file");
+		fclose(currFile);
+		currFile = fopen(filename.c_str(), "w+b");
+		if (currFile == nullptr)
+		{
+			filename = "";
+			throw std::runtime_error("Unable to clear file");
+		}
 	}
 	else
 	{

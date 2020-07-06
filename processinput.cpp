@@ -93,7 +93,12 @@ void processInput()
 			{
 				if (menuResult.option == L"Spara")
 				{
-
+					filehandler.clear();
+					filehandler.setPos(0);
+					for (auto i = filedata.start(); i != nullptr; i.next())
+					{
+						filehandler.writeByte(*i);
+					}
 				}
 				else if (menuResult.option == L"Avsluta")
 				{

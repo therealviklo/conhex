@@ -12,6 +12,7 @@
 class Filehandler
 {
 private:
+	std::string filename;
 	FILE* currFile;
 public:
 	Filehandler();
